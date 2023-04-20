@@ -57,7 +57,7 @@ const CloudButton = ({ seter }: Props) => {
         // maxImageWidth: 600
       },
       (error, result) => {
-        if (!error && result && result.event === 'success') {
+        if (error === null && result.event === 'success') {
           seter(result.info.url)
         }
       }
