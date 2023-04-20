@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Button from '../../Components/button/Button'
 import Input from '../../Components/input/Input'
 // import InputImage from '../../Components/input/inputImage'
@@ -8,6 +8,9 @@ import axios from 'axios'
 import { useAppDispatch } from '../../store/store'
 import { setUser } from '../../store/features/userSlice'
 import Spin from '../../Components/Spin'
+import { gapi } from 'gapi-script'
+import GoogleLogin, { type GoogleLoginResponse, type GoogleLoginResponseOffline } from 'react-google-login'
+import GoogleIcon from '../../Components/google'
 
 const Register = () => {
   const dispatch = useAppDispatch()
@@ -23,6 +26,7 @@ const Register = () => {
     confirmPassword: ''
   })
   const navigate = useNavigate()
+  const clientId = '833193992893-qq29j6ko42krni07a8nts6m1gcou74jq.apps.googleusercontent.com'
 
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const { value, name } = e.target
@@ -57,6 +61,42 @@ const Register = () => {
         console.log(err.response?.data.error)
       })
   }
+
+  const onSuccess = (response: GoogleLoginResponse | GoogleLoginResponseOffline): void => {
+    if (typeof response === 'object' && response !== null && 'profileObj' in response) {
+      setLoading(true)
+      axios.post('http://localhost:3001/user', {
+        name: response.profileObj.name,
+        email: response.profileObj.email,
+        username: response.profileObj.name.split(' ')[0] + new Date().toString().split(' ')[4].split(':').join(''),
+        password: '',
+        image: response.profileObj.imageUrl,
+        google_id: response.profileObj.googleId
+      })
+        .then(res => {
+          setLoading(false)
+          dispatch(setUser(res.data))
+          navigate('/user')
+        })
+        .catch(err => {
+          setLoading(false)
+          console.log(err.response?.data.error)
+        })
+    }
+  }
+
+  const onFailure = (error: any) => {
+    console.log(error)
+  }
+
+  useEffect(() => {
+    const start = () => {
+      gapi.auth2.init({
+        clientId
+      })
+    }
+    gapi.load('client:auth2', start)
+  }, [])
 
   return (
     <div className='flex justify-center items-center w-full h-screen'>
@@ -110,6 +150,20 @@ const Register = () => {
         text='Register'
         onClick={() => {}}
         stretch={true}
+        />
+        <GoogleLogin
+        clientId={clientId}
+        render={renderProps => (
+          <button
+          className='flex justify-center gap-2 w-4/5 border-2 border-black rounded-xl font-semibold py-2 px-6 transition-all duration-300 hover:bg-black hover:text-white'
+          onClick={renderProps.onClick}
+          disabled={renderProps.disabled}>
+            <GoogleIcon />
+            Registrarse con Google
+          </button>
+        )}
+        onSuccess={onSuccess}
+        onFailure={onFailure}
         />
       </form>
     </div>
