@@ -1,13 +1,18 @@
 import Input from '../../Components/input/Input'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { type UserLogin } from '../../types/types'
 import Button from '../../Components/button/Button'
 import axios from 'axios'
 import { useAppDispatch } from '../../store/store'
 import { setUser } from '../../store/features/userSlice'
+import GoogleLogin, { type GoogleLoginResponse, type GoogleLoginResponseOffline } from 'react-google-login'
+import GoogleIcon from '../../Components/google'
+import { gapi } from 'gapi-script'
+import Spin from '../../Components/Spin'
 
 const Login = () => {
+  const [loading, setLoading] = useState<boolean>(false)
   const [visible, setVisible] = useState<boolean>(false)
   const [loginUser, setLoginUser] = useState<UserLogin>({
     email: '',
@@ -16,6 +21,7 @@ const Login = () => {
   })
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
+  const clientId = '833193992893-qq29j6ko42krni07a8nts6m1gcou74jq.apps.googleusercontent.com'
 
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const { value, name } = e.target
@@ -40,6 +46,39 @@ const Login = () => {
       })
       .catch(err => console.error(err))
   }
+
+  const onSuccess = (response: GoogleLoginResponse | GoogleLoginResponseOffline): void => {
+    if (typeof response === 'object' && response !== null && 'profileObj' in response) {
+      setLoading(true)
+      axios.post('http://localhost:3001/user/login', {
+        email: response.profileObj.email,
+        password: '',
+        google_id: response.profileObj.googleId
+      })
+        .then(res => {
+          setLoading(false)
+          dispatch(setUser(res.data))
+          navigate('/user')
+        })
+        .catch(err => {
+          setLoading(false)
+          console.log(err.response?.data.error)
+        })
+    }
+  }
+
+  const onFailure = (error: any) => {
+    console.log(error)
+  }
+
+  useEffect(() => {
+    const start = () => {
+      gapi.auth2.init({
+        clientId
+      })
+    }
+    gapi.load('client:auth2', start)
+  }, [])
 
   return (
     <div className='flex justify-center items-center w-full h-screen'>
@@ -66,11 +105,26 @@ const Login = () => {
         className='text-lg text-center font-semibold underline hover:cursor-pointer'>
           {visible ? 'Do not show' : 'Show Password'}
         </p>
+        <Spin visible={loading} />
         <Button
         type='submit'
-        text='Login'
+        text='Iniciar Sesión'
         onClick={() => {}}
         stretch={true}
+        />
+        <GoogleLogin
+        clientId={clientId}
+        render={renderProps => (
+          <button
+          className='flex justify-center gap-2 w-4/5 border-2 border-black rounded-xl font-semibold py-2 px-6 transition-all duration-300 hover:bg-black hover:text-white disabled:opacity-70 disabled:cursor-default disabled:hover:bg-white disabled:hover:text-black'
+          onClick={renderProps.onClick}
+          disabled={renderProps.disabled}>
+            <GoogleIcon />
+            Iniciar sesión con Google
+          </button>
+        )}
+        onSuccess={onSuccess}
+        onFailure={onFailure}
         />
       </form>
     </div>
