@@ -1,14 +1,16 @@
 import CameraIcon from '../camera'
 
 interface Props {
-  seter: any
+  seter: React.Dispatch<React.SetStateAction<string>>
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const CloudButton = ({ seter }: Props) => {
+const CloudButton = ({ seter, setLoading }: Props) => {
   const cloudName = 'kikeai'
   const uploadPreset = 'ml_default'
   const handleWidget: React.MouseEventHandler<HTMLButtonElement> = (e) => {
     e.preventDefault()
+    setLoading(true)
     const widget = window.cloudinary.createUploadWidget(
       {
         cloudName,
@@ -25,7 +27,9 @@ const CloudButton = ({ seter }: Props) => {
         multiple: false,
         defaultSource: 'local',
         clientAllowedFormats: ['jpg', 'jpeg', 'png'],
-        maxImageWidth: 600,
+        maxImageWidth: 300,
+        maxImageHeight: 300,
+        croppingAspectRatio: 1,
         styles: {
           palette: {
             window: '#ffffff',
@@ -57,7 +61,7 @@ const CloudButton = ({ seter }: Props) => {
         // maxImageWidth: 600
       },
       (error, result) => {
-        if (error === null && result.event === 'success') {
+        if (!error && result && result.event === 'success') {
           seter(result.info.url)
         }
       }
@@ -68,7 +72,7 @@ const CloudButton = ({ seter }: Props) => {
     <button
     onClick={handleWidget}
     id='upload_widget'
-    className=' bg-gray-900 px-2 py-2 rounded-full border border-white absolute bottom-0 right-0'>
+    className=' bg-gray-900 px-2 py-2 z-40 rounded-full border border-white absolute bottom-0 right-0'>
       <CameraIcon />
     </button>
   )

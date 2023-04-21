@@ -37,14 +37,17 @@ const Login = () => {
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
-    console.log('hola mundo!!')
+    setLoading(true)
     axios.post('http://localhost:3001/user/login', loginUser)
       .then(res => {
-        console.log(res.data)
         dispatch(setUser(res.data))
         navigate('/user')
+        setLoading(false)
       })
-      .catch(err => console.error(err))
+      .catch(err => {
+        console.error(err)
+        setLoading(false)
+      })
   }
 
   const onSuccess = (response: GoogleLoginResponse | GoogleLoginResponseOffline): void => {
