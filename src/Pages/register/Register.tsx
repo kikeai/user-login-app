@@ -15,7 +15,7 @@ import { validateRegister } from './validateRegister'
 
 const Register = () => {
   const dispatch = useAppDispatch()
-  const [visible, setVisible] = useState(false)
+  const [errorSubmit, setErrorSubmit] = useState('')
   const [loading, setLoading] = useState(false)
   const imageDefault = 'https://t4.ftcdn.net/jpg/00/65/77/27/360_F_65772719_A1UV5kLi5nCEWI0BNLLiFaBPEkUbv5Fv.jpg'
   const [registerUser, setRegisterUser] = useState<UserRegister>({
@@ -41,6 +41,7 @@ const Register = () => {
 
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const { value, name } = e.target
+    setErrorSubmit('')
     setRegisterUser({
       ...registerUser,
       [name]: value
@@ -51,30 +52,30 @@ const Register = () => {
     }))
   }
 
-  const handleVisible = () => {
-    setVisible(!visible)
-  }
-
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
-    setLoading(true)
-    axios.post('http://localhost:3001/user', {
-      name: registerUser.name.trim(),
-      email: registerUser.email,
-      username: registerUser.username,
-      password: registerUser.password,
-      image: registerUser.image,
-      google_id: registerUser.google_id
-    })
-      .then(res => {
-        setLoading(false)
-        dispatch(setUser(res.data))
-        navigate('/user')
+    if (Object.values(registerUser).some(x => x === '') || Object.values(registerErrors).some(x => x !== '' && x !== 'Insegura' && x !== 'Aceptable' && x !== 'Segura')) {
+      return null
+    } else {
+      setLoading(true)
+      axios.post('http://localhost:3001/user', {
+        name: registerUser.name.trim(),
+        email: registerUser.email,
+        username: registerUser.username,
+        password: registerUser.password,
+        image: registerUser.image,
+        google_id: registerUser.google_id
       })
-      .catch(err => {
-        setLoading(false)
-        console.log(err.response?.data.error)
-      })
+        .then(res => {
+          setLoading(false)
+          dispatch(setUser(res.data))
+          navigate('/user')
+        })
+        .catch(err => {
+          setLoading(false)
+          console.log(err)
+        })
+    }
   }
 
   const onSuccess = (response: GoogleLoginResponse | GoogleLoginResponseOffline): void => {
@@ -145,7 +146,7 @@ const Register = () => {
         <Input
         value={registerUser.password}
         name='password'
-        type={visible ? 'text' : 'password'}
+        type='password'
         error={registerErrors.password}
         placeholder='Create password'
         onChange={handleChange}
@@ -153,23 +154,21 @@ const Register = () => {
         <Input
         value={registerUser.confirmPassword}
         name='confirmPassword'
-        type={visible ? 'text' : 'password'}
+        type='password'
         error={registerErrors.confirmPassword}
         placeholder='Repeat password'
         onChange={handleChange}
         />
-        <p
-        onClick={handleVisible}
-        hidden={registerUser.password === ''}
-        className='text-lg text-center font-semibold underline hover:cursor-pointer'>
-          {visible ? 'Do not show' : 'Show Password'}
-        </p>
         <Spin visible={loading} />
+        <p className={`font-semibold text-sm text-red-700 bg-red-200 rounded p-1 ${errorSubmit === '' ? 'hidden' : ''}`}>{errorSubmit}</p>
         <Button
         type='submit'
         text='Registrarse'
-        disabled={Object.values(registerUser).some((x) => x === '')}
-        onClick={() => {}}
+        disabled={false}
+        onClick={() => {
+          if (Object.values(registerUser).some(x => x === '')) setErrorSubmit('*Llena todos los campos')
+          else if (Object.values(registerErrors).some(x => x !== 'Insegura' && x !== 'Aceptable' && x !== 'Segura' && x !== '')) setErrorSubmit('*Rectifica la información')
+        }}
         stretch={true}
         />
         <GoogleLogin

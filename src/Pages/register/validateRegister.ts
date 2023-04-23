@@ -17,13 +17,14 @@ function securePassword (password: string) {
   const complejidadBaja3 = tieneNumero && tieneMayuscula && !tieneCaracterEspecial && !tieneMinuscula
   const complejidadBaja4 = !tieneNumero && tieneMayuscula && !tieneCaracterEspecial && tieneMinuscula
   const complejidadBaja5 = tieneNumero && !tieneMayuscula && tieneCaracterEspecial && !tieneMinuscula
+  const complejidadBaja6 = !tieneNumero && !tieneMayuscula && tieneCaracterEspecial && tieneMinuscula
   const complejidadMedia = tieneMinuscula && tieneNumero && tieneMayuscula && !tieneCaracterEspecial
   const complejidadMedia2 = tieneMinuscula && tieneNumero && !tieneMayuscula && tieneCaracterEspecial
   const complejidadMedia3 = tieneMinuscula && !tieneNumero && tieneMayuscula && tieneCaracterEspecial
   const complejidadMedia4 = !tieneMinuscula && tieneNumero && tieneMayuscula && tieneCaracterEspecial
   const complejidadAlta = tieneMinuscula && tieneNumero && tieneMayuscula && tieneCaracterEspecial
 
-  return complejidadBaja1 || complejidadBaja2 || complejidadBaja3 || complejidadBaja4 || complejidadBaja5 ? 'Insegura' : complejidadMedia || complejidadMedia2 || complejidadMedia3 || complejidadMedia4 ? 'Aceptable' : complejidadAlta ? 'Segura' : ''
+  return complejidadBaja1 || complejidadBaja2 || complejidadBaja3 || complejidadBaja4 || complejidadBaja5 || complejidadBaja6 ? 'Insegura' : complejidadMedia || complejidadMedia2 || complejidadMedia3 || complejidadMedia4 ? 'Aceptable' : complejidadAlta ? 'Segura' : ''
 }
 
 export const validateRegister = ({ name, email, username, password, confirmPassword }: UserRegister) => {
