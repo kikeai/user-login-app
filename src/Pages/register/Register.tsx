@@ -164,7 +164,6 @@ const Register = () => {
         <Button
         type='submit'
         text='Registrarse'
-        disabled={false}
         onClick={() => {
           if (Object.values(registerUser).some(x => x === '')) setErrorSubmit('*Llena todos los campos')
           else if (Object.values(registerErrors).some(x => x !== 'Insegura' && x !== 'Aceptable' && x !== 'Segura' && x !== '')) setErrorSubmit('*Rectifica la información')

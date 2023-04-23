@@ -61,13 +61,13 @@ const User = () => {
         <div className='flex gap-4 mt-6'>
           <Button
           type='button'
-          text='Change username'
+          text='Cambiar username'
           onClick={() => navigate('/user/changeusername')}
           stretch={false}
           />
           <Button
           type='button'
-          text='Change password'
+          text='Cambiar contraseña'
           onClick={() => navigate('/user/changepassword')}
           stretch={false}
           />

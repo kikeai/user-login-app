@@ -10,11 +10,17 @@ import GoogleLogin, { type GoogleLoginResponse, type GoogleLoginResponseOffline 
 import GoogleIcon from '../../Components/google'
 import { gapi } from 'gapi-script'
 import Spin from '../../Components/Spin'
+import { validateLogin } from './validateLogin'
 
 const Login = () => {
   const [loading, setLoading] = useState<boolean>(false)
-  const [visible, setVisible] = useState<boolean>(false)
+  const [errorSubmit, setErrorSubmit] = useState('')
   const [loginUser, setLoginUser] = useState<UserLogin>({
+    email: '',
+    password: '',
+    google_id: null
+  })
+  const [errorLoginUser, setErrorLoginUser] = useState<UserLogin>({
     email: '',
     password: '',
     google_id: null
@@ -25,18 +31,22 @@ const Login = () => {
 
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const { value, name } = e.target
+    setErrorSubmit('')
     setLoginUser({
       ...loginUser,
       [name]: value
     })
-  }
-
-  const handleVisible = () => {
-    setVisible(!visible)
+    setErrorLoginUser(validateLogin({
+      ...loginUser,
+      [name]: value
+    }))
   }
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
+    if (Object.values(loginUser).some(x => x === '') || Object.values(errorLoginUser).some(x => x !== '')) {
+      return
+    }
     setLoading(true)
     axios.post('http://localhost:3001/user/login', loginUser)
       .then(res => {
@@ -45,7 +55,7 @@ const Login = () => {
         setLoading(false)
       })
       .catch(err => {
-        console.error(err)
+        setErrorSubmit(err.response.data.error)
         setLoading(false)
       })
   }
@@ -90,6 +100,7 @@ const Login = () => {
         <p className='flex text-gray-700 font-semibold'>You no have account?<i onClick={() => navigate('/register')} className='text-blue-700 ml-1 font-semibold underline hover:cursor-pointer'>sing up here</i></p>
         <Input
         value={loginUser.email}
+        error={errorLoginUser.email}
         name='email'
         type='email'
         placeholder='Your email'
@@ -97,22 +108,21 @@ const Login = () => {
         />
         <Input
         value={loginUser.password}
+        error={errorLoginUser.password}
         name='password'
-        type={visible ? 'text' : 'password'}
+        type='password'
         placeholder='Your password'
         onChange={handleChange}
         />
-        <p
-        onClick={handleVisible}
-        hidden={loginUser.password === ''}
-        className='text-lg text-center font-semibold underline hover:cursor-pointer'>
-          {visible ? 'Do not show' : 'Show Password'}
-        </p>
+        <p className={`font-semibold text-sm text-red-700 bg-red-200 rounded p-1 ${errorSubmit === '' ? 'hidden' : ''}`}>{errorSubmit}</p>
         <Spin visible={loading} />
         <Button
         type='submit'
         text='Iniciar Sesión'
-        onClick={() => {}}
+        onClick={() => {
+          if (Object.values(loginUser).some(x => x === '')) setErrorSubmit('*Llena todos los campos')
+          else if (Object.values(errorLoginUser).some(x => x !== '')) setErrorSubmit('*Rectifica la información')
+        }}
         stretch={true}
         />
         <GoogleLogin
