@@ -3,6 +3,7 @@ export interface ButtonProps {
   type: 'button' | 'reset' | 'submit'
   onClick: React.MouseEventHandler<HTMLButtonElement>
   stretch: boolean
+  disabled: boolean
 }
 
 type TypesInput = 'number' | 'text' | 'password' | 'search' | 'button' | 'email' | 'file'
@@ -13,6 +14,7 @@ export interface InputProps {
   placeholder: string
   type: TypesInput
   onChange: React.ChangeEventHandler<HTMLInputElement>
+  error: string
 }
 
 export interface UserLogin {

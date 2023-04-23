@@ -11,18 +11,29 @@ import Spin from '../../Components/Spin'
 import { gapi } from 'gapi-script'
 import GoogleLogin, { type GoogleLoginResponse, type GoogleLoginResponseOffline } from 'react-google-login'
 import GoogleIcon from '../../Components/google'
+import { validateRegister } from './validateRegister'
 
 const Register = () => {
   const dispatch = useAppDispatch()
   const [visible, setVisible] = useState(false)
   const [loading, setLoading] = useState(false)
+  const imageDefault = 'https://t4.ftcdn.net/jpg/00/65/77/27/360_F_65772719_A1UV5kLi5nCEWI0BNLLiFaBPEkUbv5Fv.jpg'
   const [registerUser, setRegisterUser] = useState<UserRegister>({
     email: '',
     name: '',
     username: '',
     password: '',
-    image: 'https://t4.ftcdn.net/jpg/00/65/77/27/360_F_65772719_A1UV5kLi5nCEWI0BNLLiFaBPEkUbv5Fv.jpg',
+    image: imageDefault,
     google_id: null,
+    confirmPassword: ''
+  })
+  const [registerErrors, setRegisterErrors] = useState<UserRegister>({
+    email: '',
+    name: '',
+    username: '',
+    password: '',
+    image: '',
+    google_id: '',
     confirmPassword: ''
   })
   const navigate = useNavigate()
@@ -34,6 +45,10 @@ const Register = () => {
       ...registerUser,
       [name]: value
     })
+    setRegisterErrors(validateRegister({
+      ...registerUser,
+      [name]: value
+    }))
   }
 
   const handleVisible = () => {
@@ -44,7 +59,7 @@ const Register = () => {
     e.preventDefault()
     setLoading(true)
     axios.post('http://localhost:3001/user', {
-      name: registerUser.name,
+      name: registerUser.name.trim(),
       email: registerUser.email,
       username: registerUser.username,
       password: registerUser.password,
@@ -107,6 +122,7 @@ const Register = () => {
         value={registerUser.name}
         name='name'
         type='text'
+        error={registerErrors.name}
         placeholder='Your name'
         onChange={handleChange}
         />
@@ -114,6 +130,7 @@ const Register = () => {
         value={registerUser.email}
         name='email'
         type='email'
+        error={registerErrors.email}
         placeholder='Your email'
         onChange={handleChange}
         />
@@ -121,6 +138,7 @@ const Register = () => {
         value={registerUser.username}
         name='username'
         type='text'
+        error={registerErrors.username}
         placeholder='Username'
         onChange={handleChange}
         />
@@ -128,6 +146,7 @@ const Register = () => {
         value={registerUser.password}
         name='password'
         type={visible ? 'text' : 'password'}
+        error={registerErrors.password}
         placeholder='Create password'
         onChange={handleChange}
         />
@@ -135,6 +154,7 @@ const Register = () => {
         value={registerUser.confirmPassword}
         name='confirmPassword'
         type={visible ? 'text' : 'password'}
+        error={registerErrors.confirmPassword}
         placeholder='Repeat password'
         onChange={handleChange}
         />
@@ -148,6 +168,7 @@ const Register = () => {
         <Button
         type='submit'
         text='Registrarse'
+        disabled={Object.values(registerUser).some((x) => x === '')}
         onClick={() => {}}
         stretch={true}
         />
