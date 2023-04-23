@@ -27,15 +27,15 @@ function securePassword (password: string) {
   return complejidadBaja1 || complejidadBaja2 || complejidadBaja3 || complejidadBaja4 || complejidadBaja5 || complejidadBaja6 ? 'Insegura' : complejidadMedia || complejidadMedia2 || complejidadMedia3 || complejidadMedia4 ? 'Aceptable' : complejidadAlta ? 'Segura' : ''
 }
 
-export const validateRegister = ({ name, email, username, password, confirmPassword }: UserRegister) => {
-  const errors: UserRegister = {
+export const validateRegister = ({ name, email, username, password, confirmPassword }: UserRegister, error: UserRegister) => {
+  const errors = {
     name: '',
     email: '',
-    username: '',
     password: '',
     confirmPassword: '',
-    google_id: '',
-    image: ''
+    username: '',
+    image: '',
+    google_id: ''
   }
 
   // VALIDACIONES PARA EL NOMBRE
@@ -46,7 +46,7 @@ export const validateRegister = ({ name, email, username, password, confirmPassw
 
   // VALIDACIONES PARA EL EMAIL
   if (!emailRegex.test(email)) errors.email = 'Usa el formato correcto'
-  if (email.length < 15) errors.email = 'Almenos 10 caracteres'
+  if (email.length < 15) errors.email = 'Almenos 15 caracteres'
   if (email.length > 256) errors.email = 'Máximo 256 caracteres'
   if (email.length === 0) errors.email = ''
 
@@ -65,5 +65,11 @@ export const validateRegister = ({ name, email, username, password, confirmPassw
   if (confirmPassword !== password) errors.confirmPassword = 'Las contraseñas deben coincidir'
   if (confirmPassword.length === 0) errors.confirmPassword = ''
 
+  if (error.username === 'Usuario disponible' || error.username === 'Usuario no disponible') {
+    return {
+      ...errors,
+      username: error.username
+    }
+  }
   return errors
 }

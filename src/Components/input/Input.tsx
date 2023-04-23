@@ -5,7 +5,7 @@ import VisibilityOff from '../../assets/svg/VisibilityOff'
 
 const Input = ({ value, name, placeholder, type, onChange, error }: InputProps) => {
   const [typeInput, setTypeInput] = useState<TypesInput>(type)
-  const errorOrComplejity = error !== 'Insegura' && error !== 'Aceptable' && error !== 'Segura' && error !== ''
+  const errorOrComplejity = error !== 'Insegura' && error !== 'Aceptable' && error !== 'Segura' && error !== 'Usuario disponible' && error !== ''
   return (
     <div className='w-4/5'>
       <div className='flex items-center w-full relative'>
@@ -26,7 +26,7 @@ const Input = ({ value, name, placeholder, type, onChange, error }: InputProps) 
         }
       </div>
       <div className='mt-2'>
-        <label className={`text-sm font-semibold p-1 mt-2 rounded-sm ${error === 'Insegura' ? 'text-red-700 bg-red-200' : error === 'Aceptable' ? 'text-orange-700 bg-orange-200' : error === 'Segura' ? 'text-green-700 bg-green-200' : 'text-red-700 bg-red-200'} ${error === '' ? 'hidden' : ''}`}>{error}</label>
+        <label className={`text-sm font-semibold p-1 mt-2 rounded-sm ${error === 'Insegura' ? 'text-red-700 bg-red-200' : error === 'Aceptable' ? 'text-orange-700 bg-orange-200' : error === 'Segura' || error === 'Usuario disponible' ? 'text-green-700 bg-green-200' : 'text-red-700 bg-red-200'} ${error === '' ? 'hidden' : ''}`}>{error}</label>
       </div>
     </div>
   )

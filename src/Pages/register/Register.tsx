@@ -12,6 +12,7 @@ import { gapi } from 'gapi-script'
 import GoogleLogin, { type GoogleLoginResponse, type GoogleLoginResponseOffline } from 'react-google-login'
 import GoogleIcon from '../../Components/google'
 import { validateRegister } from './validateRegister'
+import { useDebounce } from '../../utils/hooks/useDebounce'
 
 const Register = () => {
   const dispatch = useAppDispatch()
@@ -49,12 +50,12 @@ const Register = () => {
     setRegisterErrors(validateRegister({
       ...registerUser,
       [name]: value
-    }))
+    }, registerErrors))
   }
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
-    if (Object.values(registerUser).some(x => x === '') || Object.values(registerErrors).some(x => x !== '' && x !== 'Insegura' && x !== 'Aceptable' && x !== 'Segura')) {
+    if (Object.values(registerUser).some(x => x === '') || Object.values(registerErrors).some(x => x !== '' && x !== 'Insegura' && x !== 'Aceptable' && x !== 'Segura' && x !== 'Usuario disponible')) {
       return null
     } else {
       setLoading(true)
@@ -114,6 +115,29 @@ const Register = () => {
     gapi.load('client:auth2', start)
   }, [])
 
+  const debounceUsername = useDebounce(registerUser.username, 1000)
+
+  useEffect(() => {
+    if (debounceUsername !== '' && debounceUsername.length >= 4) {
+      axios.post('http://localhost:3001/user/checkusername', { username: debounceUsername })
+        .then(res => {
+          const { response } = res.data
+          if (response === 'No Exist') {
+            setRegisterErrors({
+              ...registerErrors,
+              username: 'Usuario disponible'
+            })
+          } else {
+            setRegisterErrors({
+              ...registerErrors,
+              username: 'Usuario no disponible'
+            })
+          }
+        })
+        .catch(error => console.log(error))
+    }
+  }, [debounceUsername])
+
   return (
     <div className='flex justify-center items-center w-full h-screen'>
       <form onSubmit={handleSubmit} className='flex flex-col gap-6 justify-center items-center py-8 w-96 border-2 border-black rounded-2xl'>
@@ -166,7 +190,7 @@ const Register = () => {
         text='Registrarse'
         onClick={() => {
           if (Object.values(registerUser).some(x => x === '')) setErrorSubmit('*Llena todos los campos')
-          else if (Object.values(registerErrors).some(x => x !== 'Insegura' && x !== 'Aceptable' && x !== 'Segura' && x !== '')) setErrorSubmit('*Rectifica la información')
+          else if (Object.values(registerErrors).some(x => x !== 'Insegura' && x !== 'Aceptable' && x !== 'Segura' && x !== '' && x !== 'Usuario disponible')) setErrorSubmit('*Rectifica la información')
         }}
         stretch={true}
         />
