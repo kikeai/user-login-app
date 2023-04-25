@@ -55,7 +55,7 @@ const User = () => {
           <img className='w-36 rounded-full border-2 border-black' src={image} alt="profile" />
           <CloudButton seter={setNewimage} setLoading={setImgLoading} />
         </div>
-        <p className='text-gray-700 text-xl font-bold mt-4'>{`@${username}`}</p>
+        <p className='flex justify-center items-center text-gray-700 text-xl font-bold mt-4'>{`@${username}`}</p>
         <h2 className='text-4xl text-black font-black text-center italic'>{name}</h2>
         <p className='text-gray-700 text-lg font-semibold'>{email}</p>
         <div className='flex gap-4 mt-6'>

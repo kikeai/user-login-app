@@ -16,8 +16,7 @@ export const validateLogin = ({ email, password }: UserLogin) => {
   if (email.length === 0) errors.email = ''
 
   // VALIDACIONES PARA LA CONTRASEÑA
-  if (password.length < 8) errors.password = 'Almenos 8 caracteres'
-  if (password.length > 100) errors.password = 'Maximo 100 caracteres'
+  if (password.length > 256) errors.password = 'Maximo 100 caracteres'
   if (password.length === 0) errors.password = ''
 
   return errors

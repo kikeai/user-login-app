@@ -1,26 +1,63 @@
 import Button from '../../Components/button/Button'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Input from '../../Components/input/Input'
 import { useAppDispatch, useAppSelector } from '../../store/store'
 import axios from 'axios'
 import { setUser } from '../../store/features/userSlice'
+import { validate } from './ValidateChangeUsername'
+import { useDebounce } from '../../utils/hooks/useDebounce'
+import Spin from '../../Components/Spin'
 
 const ChangeUsername = () => {
   const [newUsername, setNewUsername] = useState('')
+  const [errorNewUsername, setErrorNewUsername] = useState('')
+  const [errorSubmit, setErrorSubmit] = useState('')
+  const [responseSubmit, setResponseSubmit] = useState('')
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const { email } = useAppSelector(state => state.user)
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
+    if (newUsername === '' || errorNewUsername !== 'Usuario disponible') {
+      return
+    }
+    setErrorSubmit('')
+    setResponseSubmit('')
+    setLoading(true)
     axios.put('http://localhost:3001/user/username', { email, newUsername })
       .then(res => {
         dispatch(setUser(res.data))
-        navigate('/user')
+        setResponseSubmit('Usuario actualizado correctamente')
+        setNewUsername('')
+        setErrorNewUsername('')
+        setLoading(false)
       })
-      .catch(err => console.error(err))
+      .catch(err => {
+        console.error(err)
+        setErrorSubmit(err.response.data.error)
+        setLoading(false)
+      })
   }
+
+  const debounceUsername = useDebounce(newUsername, 1000)
+
+  useEffect(() => {
+    if (debounceUsername !== '' && debounceUsername.length >= 4) {
+      axios.post('http://localhost:3001/user/checkusername', { username: debounceUsername })
+        .then(res => {
+          const { response } = res.data
+          if (response === 'No Exist') {
+            setErrorNewUsername('Usuario disponible')
+          } else {
+            setErrorNewUsername('Usuario no disponible')
+          }
+        })
+        .catch(error => console.log(error))
+    }
+  }, [debounceUsername])
 
   return (
     <div className='flex justify-center items-center w-full h-screen'>
@@ -28,12 +65,20 @@ const ChangeUsername = () => {
         <h1 className='font-black text-center text-3xl italic'>Change Password</h1>
         <Input
         value={newUsername}
+        error={errorNewUsername}
         name='newPassword'
         type='text'
         placeholder='New username'
-        onChange={(e) => setNewUsername(e.target.value)}
+        onChange={(e) => {
+          setErrorSubmit('')
+          setResponseSubmit('')
+          setNewUsername(e.target.value)
+          setErrorNewUsername(validate(e.target.value))
+        }}
         />
-
+        <Spin visible={loading} />
+        <p className={`font-semibold text-sm text-green-700 bg-green-200 rounded p-1 ${responseSubmit === '' ? 'hidden' : ''}`}>{responseSubmit}</p>
+        <p className={`font-semibold text-sm text-red-700 bg-red-200 rounded p-1 ${errorSubmit === '' ? 'hidden' : ''}`}>{errorSubmit}</p>
         <div className='flex gap-4'>
           <Button
           type='button'
@@ -44,7 +89,11 @@ const ChangeUsername = () => {
           <Button
           type='submit'
           text='Change'
-          onClick={() => {}}
+          onClick={() => {
+            if (newUsername === '') setErrorSubmit('*Llena todos los campos')
+            else if (errorNewUsername === '') setErrorSubmit('*Espera la disponibilidad del nuevo username')
+            else if (errorNewUsername !== 'Usuario disponible') setErrorSubmit('*Rectifica la información')
+          }}
           stretch={false}
           />
         </div>

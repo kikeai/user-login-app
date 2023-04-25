@@ -87,7 +87,7 @@ const Register = () => {
         email: response.profileObj.email,
         username: response.profileObj.name.split(' ')[0] + new Date().toString().split(' ')[4].split(':').join(''),
         password: '',
-        image: response.profileObj.imageUrl,
+        image: registerUser.image,
         google_id: response.profileObj.googleId
       })
         .then(res => {

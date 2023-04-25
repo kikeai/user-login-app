@@ -5,36 +5,53 @@ import { type NewPassword } from '../../types/types'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector } from '../../store/store'
 import axios from 'axios'
+import { validate } from './ValidateChangePassword'
+import Spin from '../../Components/Spin'
 
 const ChangePassword = () => {
-  const [visible, setVisible] = useState<boolean>(false)
+  const navigate = useNavigate()
+  const { email } = useAppSelector(state => state.user)
+  const [loading, setLoading] = useState(false)
+  const [errorSubmit, setErrorSubmit] = useState('')
+  const [responseSubmit, setResponseSubmit] = useState('')
   const [newPassword, setNewPassword] = useState<NewPassword>({
     newPassword: '',
     confirmNewPassword: ''
   })
-  const navigate = useNavigate()
-  const { email } = useAppSelector(state => state.user)
+  const [errorNewPassword, setErrorNewPassword] = useState<NewPassword>({
+    newPassword: '',
+    confirmNewPassword: ''
+  })
 
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const { name, value } = e.target
+    setErrorSubmit('')
+    setResponseSubmit('')
     setNewPassword({
       ...newPassword,
       [name]: value
     })
-  }
-
-  const handleVisible = () => {
-    setVisible(!visible)
+    setErrorNewPassword(validate({
+      ...newPassword,
+      [name]: value
+    }))
   }
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
+    if (Object.values(newPassword).some(x => x === '') || Object.values(errorNewPassword).some(x => x !== '' && x !== 'Insegura' && x !== 'Aceptable' && x !== 'Segura')) {
+      return
+    }
+    setLoading(true)
     axios.put('http://localhost:3001/user/password', { email, newPassword: newPassword.newPassword })
       .then(res => {
-        console.log(res.data)
-        navigate('/user')
+        setResponseSubmit(res.data.message)
+        setLoading(false)
       })
-      .catch(err => console.error(err))
+      .catch(err => {
+        setErrorSubmit(err.response.data.error)
+        setLoading(false)
+      })
   }
 
   return (
@@ -44,23 +61,22 @@ const ChangePassword = () => {
         <Input
         value={newPassword.newPassword}
         name='newPassword'
-        type={visible ? 'text' : 'password'}
+        error={errorNewPassword.newPassword}
+        type='password'
         placeholder='New password'
         onChange={handleChange}
         />
         <Input
         value={newPassword.confirmNewPassword}
         name='confirmNewPassword'
-        type={visible ? 'text' : 'password'}
+        error={errorNewPassword.confirmNewPassword}
+        type='password'
         placeholder='Repeat password'
         onChange={handleChange}
         />
-        <p
-        onClick={handleVisible}
-        hidden={newPassword.newPassword === '' && newPassword.confirmNewPassword === ''}
-        className='text-lg text-center font-semibold underline hover:cursor-pointer'>
-          {visible ? 'Do not show' : 'Show Password'}
-        </p>
+        <Spin visible={loading} />
+        <p className={`font-semibold text-sm text-green-700 bg-green-200 rounded p-1 ${responseSubmit === '' ? 'hidden' : ''}`}>{responseSubmit}</p>
+        <p className={`font-semibold text-sm text-red-700 bg-red-200 rounded p-1 ${errorSubmit === '' ? 'hidden' : ''}`}>{errorSubmit}</p>
         <div className='flex gap-4'>
           <Button
           type='button'
@@ -71,7 +87,10 @@ const ChangePassword = () => {
           <Button
           type='submit'
           text='Change'
-          onClick={() => {}}
+          onClick={() => {
+            if (Object.values(newPassword).some(x => x === '')) setErrorSubmit('*Llena todos los campos')
+            else if (Object.values(errorNewPassword).some(x => x !== '' && x !== 'Insegura' && x !== 'Aceptable' && x !== 'Segura')) setErrorSubmit('*Rectifica la información')
+          }}
           stretch={false}
           />
         </div>

@@ -4,7 +4,7 @@ const nameRegex = /^[a-zA-ZÁÉÍÓÚáéíóúÜüÑñ\s]+$/
 const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i
 const usernameRegex = /^[a-zA-Z0-9_]+$/
 
-function securePassword (password: string) {
+export function securePassword (password: string) {
   // Requisitos mínimos de seguridad de la password
   const tieneMayuscula = /[A-Z]/.test(password)
   const tieneMinuscula = /[a-z]/.test(password)
@@ -52,8 +52,8 @@ export const validateRegister = ({ name, email, username, password, confirmPassw
 
   // VALIDACIONES PARA EL USERNAME
   if (!usernameRegex.test(username)) errors.username = 'No uses símbolos especiales'
-  if (username.length < 4) errors.username = 'Almenos 4 letras'
-  if (username.length > 20) errors.username = 'Máximo 20 letras'
+  if (username.length < 4) errors.username = 'Almenos 4 caracteres'
+  if (username.length > 20) errors.username = 'Máximo 20 caracteres'
   if (username.length === 0) errors.username = ''
 
   // VALIDACIONES PARA LA CONTRASEÑA
