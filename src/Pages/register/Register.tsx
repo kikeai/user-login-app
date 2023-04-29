@@ -5,8 +5,6 @@ import Input from '../../Components/input/Input'
 import { type UserRegister } from '../../types/types'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { useAppDispatch } from '../../store/store'
-import { setUser } from '../../store/features/userSlice'
 import Spin from '../../Components/Spin'
 import { gapi } from 'gapi-script'
 import GoogleLogin, { type GoogleLoginResponse, type GoogleLoginResponseOffline } from 'react-google-login'
@@ -15,7 +13,6 @@ import { validateRegister } from './validateRegister'
 import { useDebounce } from '../../utils/hooks/useDebounce'
 
 const Register = () => {
-  const dispatch = useAppDispatch()
   const [errorSubmit, setErrorSubmit] = useState('')
   const [loading, setLoading] = useState(false)
   const imageDefault = 'https://t4.ftcdn.net/jpg/00/65/77/27/360_F_65772719_A1UV5kLi5nCEWI0BNLLiFaBPEkUbv5Fv.jpg'
@@ -66,10 +63,9 @@ const Register = () => {
         password: registerUser.password,
         image: registerUser.image,
         google_id: registerUser.google_id
-      })
+      }, { withCredentials: true })
         .then(res => {
           setLoading(false)
-          dispatch(setUser(res.data))
           navigate('/user')
         })
         .catch(err => {
@@ -89,10 +85,9 @@ const Register = () => {
         password: '',
         image: registerUser.image,
         google_id: response.profileObj.googleId
-      })
+      }, { withCredentials: true })
         .then(res => {
           setLoading(false)
-          dispatch(setUser(res.data))
           navigate('/user')
         })
         .catch(err => {

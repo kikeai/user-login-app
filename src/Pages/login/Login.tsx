@@ -4,8 +4,6 @@ import { useNavigate } from 'react-router-dom'
 import { type UserLogin } from '../../types/types'
 import Button from '../../Components/button/Button'
 import axios from 'axios'
-import { useAppDispatch } from '../../store/store'
-import { setUser } from '../../store/features/userSlice'
 import GoogleLogin, { type GoogleLoginResponse, type GoogleLoginResponseOffline } from 'react-google-login'
 import GoogleIcon from '../../Components/google'
 import { gapi } from 'gapi-script'
@@ -26,7 +24,6 @@ const Login = () => {
     google_id: null
   })
   const navigate = useNavigate()
-  const dispatch = useAppDispatch()
   const clientId = '833193992893-qq29j6ko42krni07a8nts6m1gcou74jq.apps.googleusercontent.com'
 
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -48,11 +45,10 @@ const Login = () => {
       return
     }
     setLoading(true)
-    axios.post('http://localhost:3001/user/login', loginUser)
+    axios.post('http://localhost:3001/user/login', loginUser, { withCredentials: true })
       .then(res => {
-        dispatch(setUser(res.data))
-        navigate('/user')
         setLoading(false)
+        navigate('/user')
       })
       .catch(err => {
         setErrorSubmit(err.response.data.error)
@@ -67,10 +63,9 @@ const Login = () => {
         email: response.profileObj.email,
         password: '',
         google_id: response.profileObj.googleId
-      })
+      }, { withCredentials: true })
         .then(res => {
           setLoading(false)
-          dispatch(setUser(res.data))
           navigate('/user')
         })
         .catch(err => {

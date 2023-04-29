@@ -3,14 +3,12 @@ import Input from '../../Components/input/Input'
 import { useState } from 'react'
 import { type NewPassword } from '../../types/types'
 import { useNavigate } from 'react-router-dom'
-import { useAppSelector } from '../../store/store'
 import axios from 'axios'
 import { validate } from './ValidateChangePassword'
 import Spin from '../../Components/Spin'
 
 const ChangePassword = () => {
   const navigate = useNavigate()
-  const { email } = useAppSelector(state => state.user)
   const [loading, setLoading] = useState(false)
   const [errorSubmit, setErrorSubmit] = useState('')
   const [responseSubmit, setResponseSubmit] = useState('')
@@ -43,7 +41,7 @@ const ChangePassword = () => {
       return
     }
     setLoading(true)
-    axios.put('http://localhost:3001/user/password', { email, newPassword: newPassword.newPassword })
+    axios.put('http://localhost:3001/user/password', { newPassword: newPassword.newPassword }, { withCredentials: true })
       .then(res => {
         setResponseSubmit(res.data.message)
         setLoading(false)

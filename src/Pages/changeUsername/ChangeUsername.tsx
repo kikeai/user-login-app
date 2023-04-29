@@ -2,9 +2,7 @@ import Button from '../../Components/button/Button'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Input from '../../Components/input/Input'
-import { useAppDispatch, useAppSelector } from '../../store/store'
 import axios from 'axios'
-import { setUser } from '../../store/features/userSlice'
 import { validate } from './ValidateChangeUsername'
 import { useDebounce } from '../../utils/hooks/useDebounce'
 import Spin from '../../Components/Spin'
@@ -16,8 +14,6 @@ const ChangeUsername = () => {
   const [responseSubmit, setResponseSubmit] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-  const dispatch = useAppDispatch()
-  const { email } = useAppSelector(state => state.user)
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
@@ -27,9 +23,8 @@ const ChangeUsername = () => {
     setErrorSubmit('')
     setResponseSubmit('')
     setLoading(true)
-    axios.put('http://localhost:3001/user/username', { email, newUsername })
+    axios.put('http://localhost:3001/user/username', { newUsername }, { withCredentials: true })
       .then(res => {
-        dispatch(setUser(res.data))
         setResponseSubmit('Usuario actualizado correctamente')
         setNewUsername('')
         setErrorNewUsername('')
