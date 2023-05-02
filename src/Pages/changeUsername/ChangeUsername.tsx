@@ -23,7 +23,7 @@ const ChangeUsername = () => {
     setErrorSubmit('')
     setResponseSubmit('')
     setLoading(true)
-    axios.put('http://localhost:3001/user/username', { newUsername }, { withCredentials: true })
+    axios.put('/user/username', { newUsername }, { withCredentials: true })
       .then(res => {
         setResponseSubmit('Usuario actualizado correctamente')
         setNewUsername('')
@@ -41,7 +41,7 @@ const ChangeUsername = () => {
 
   useEffect(() => {
     if (debounceUsername !== '' && debounceUsername.length >= 4) {
-      axios.post('http://localhost:3001/user/checkusername', { username: debounceUsername })
+      axios.post('/user/checkusername', { username: debounceUsername })
         .then(res => {
           const { response } = res.data
           if (response === 'No Exist') {

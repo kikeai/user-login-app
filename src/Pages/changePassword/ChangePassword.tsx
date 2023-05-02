@@ -41,7 +41,7 @@ const ChangePassword = () => {
       return
     }
     setLoading(true)
-    axios.put('http://localhost:3001/user/password', { newPassword: newPassword.newPassword }, { withCredentials: true })
+    axios.put('/user/password', { newPassword: newPassword.newPassword }, { withCredentials: true })
       .then(res => {
         setResponseSubmit(res.data.message)
         setLoading(false)

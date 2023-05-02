@@ -20,7 +20,7 @@ const User = () => {
   // const { name, email, username, image, logged } = useAppSelector(state => state.user)
 
   const logOut = () => {
-    axios.get('http://localhost:3001/cookie/delete', { withCredentials: true })
+    axios.get('/cookie/delete', { withCredentials: true })
       .then(res => {
         navigate('/')
       })
@@ -30,7 +30,7 @@ const User = () => {
   }
 
   useEffect(() => {
-    axios.get('http://localhost:3001/user', { withCredentials: true })
+    axios.get('/user', { withCredentials: true })
       .then(res => {
         const { email, name, username, image } = res.data
         setUser({
@@ -53,9 +53,13 @@ const User = () => {
 
   useEffect(() => {
     if (newImage !== '') {
-      axios.put('http://localhost:3001/user/image', { newImage })
+      axios.put('/user/image', { newImage }, { withCredentials: true })
         .then(res => {
           console.log(res.data)
+          setUser({
+            ...user,
+            image: newImage
+          })
         })
         .catch(err => {
           console.error(err)

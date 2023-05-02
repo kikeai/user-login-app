@@ -56,7 +56,7 @@ const Register = () => {
       return null
     } else {
       setLoading(true)
-      axios.post('http://localhost:3001/user', {
+      axios.post('/user', {
         name: registerUser.name.trim(),
         email: registerUser.email,
         username: registerUser.username,
@@ -78,7 +78,7 @@ const Register = () => {
   const onSuccess = (response: GoogleLoginResponse | GoogleLoginResponseOffline): void => {
     if (typeof response === 'object' && response !== null && 'profileObj' in response) {
       setLoading(true)
-      axios.post('http://localhost:3001/user', {
+      axios.post('/user', {
         name: response.profileObj.name,
         email: response.profileObj.email,
         username: response.profileObj.name.split(' ')[0] + new Date().toString().split(' ')[4].split(':').join(''),
@@ -114,7 +114,7 @@ const Register = () => {
 
   useEffect(() => {
     if (debounceUsername !== '' && debounceUsername.length >= 4) {
-      axios.post('http://localhost:3001/user/checkusername', { username: debounceUsername })
+      axios.post('/user/checkusername', { username: debounceUsername })
         .then(res => {
           const { response } = res.data
           if (response === 'No Exist') {

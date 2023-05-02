@@ -45,7 +45,7 @@ const Login = () => {
       return
     }
     setLoading(true)
-    axios.post('http://localhost:3001/user/login', loginUser, { withCredentials: true })
+    axios.post('/user/login', loginUser, { withCredentials: true })
       .then(res => {
         setLoading(false)
         navigate('/user')
@@ -59,7 +59,7 @@ const Login = () => {
   const onSuccess = (response: GoogleLoginResponse | GoogleLoginResponseOffline): void => {
     if (typeof response === 'object' && response !== null && 'profileObj' in response) {
       setLoading(true)
-      axios.post('http://localhost:3001/user/login', {
+      axios.post('/user/login', {
         email: response.profileObj.email,
         password: '',
         google_id: response.profileObj.googleId
