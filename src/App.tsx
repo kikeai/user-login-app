@@ -8,7 +8,7 @@ import ChangePassword from './Pages/changePassword/ChangePassword'
 import ChangeUsername from './Pages/changeUsername/ChangeUsername'
 axios.defaults.baseURL = 'https://user-login-app-api.vercel.app/'
 
-function App() {
+function App () {
   return (
     <div>
       <Routes>
