@@ -6,9 +6,9 @@ import Register from './Pages/register/Register'
 import LandingPage from './Pages/landingPage/LandingPage'
 import ChangePassword from './Pages/changePassword/ChangePassword'
 import ChangeUsername from './Pages/changeUsername/ChangeUsername'
-axios.defaults.baseURL = 'http://localhost:3001'
+axios.defaults.baseURL = 'https://user-login-app-api.vercel.app/'
 
-function App () {
+function App() {
   return (
     <div>
       <Routes>
